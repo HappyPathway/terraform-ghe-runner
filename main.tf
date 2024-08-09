@@ -35,4 +35,9 @@ resource "null_resource" "register_runner" {
   provisioner "local-exec" {
     command = "echo ${local.command}"
   }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "./config.sh remove --token ${lookup(var.removal_tokens, each.value)} || echo 'Token for ${each.value} not found'"
+  }
 }

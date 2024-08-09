@@ -25,3 +25,9 @@ variable "runner_labels" {
   description = "Labels to assign to the runner"
   default     = []
 }
+
+variable "removal_tokens" {
+  type        = map(string)
+  description = "Map of repository to token for removing runners"
+  default     = {}
+}
