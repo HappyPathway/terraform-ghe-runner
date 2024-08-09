@@ -31,9 +31,9 @@ locals {
 
 resource "null_resource" "register_runner" {
   for_each = toset(var.repos)
-  triggers = {
-    token = lookup(data.github_actions_registration_token.token, each.value).token
-  }
+  #   triggers = {
+  #     token = lookup(data.github_actions_registration_token.token, each.value).token
+  #   }
 
   provisioner "local-exec" {
     command = "mkdir -p ${var.runner_basedir}/${each.value} && cd ${var.runner_basedir}/${each.value} && tar vxzf ${var.runner_tarball}"
