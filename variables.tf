@@ -18,6 +18,7 @@ variable "github_owner" {
 variable "runner_group" {
   type        = string
   description = "Runner group to add runners to"
+  default     = null
 }
 
 variable "runner_labels" {
