@@ -36,7 +36,7 @@ resource "null_resource" "register_runner" {
   #   }
 
   provisioner "local-exec" {
-    command = "mkdir -p ${var.runner_basedir}/${each.value} && cd ${var.runner_basedir}/${each.value} && tar vxzf ${var.runner_tarball}"
+    command = "mkdir -p ${var.runner_basedir}/${each.value} && cd ${var.runner_basedir}/${each.value} && tar vxzf ${var.runner_tarball} >/dev/null 2>/dev/null"
   }
 
   provisioner "local-exec" {
