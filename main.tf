@@ -24,7 +24,7 @@ locals {
     ["--unattended"],
     ["--work ${repo}"],
     ["--replace"],
-    length(var.runner_labels) > 0 ? ["--labels ${join(",", concat(var.runner_labels, [repo]))}"] : [],
+    ["--labels ${join(",", concat(var.runner_labels, [repo]))}"],
     var.runner_group != null ? ["--runnergroup ${github_actions_runner_group.rg[0].id}"] : []
   )) }
 }
