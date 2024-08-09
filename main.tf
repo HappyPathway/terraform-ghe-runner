@@ -23,6 +23,7 @@ locals {
     ["--name ${repo}"],
     ["--unattended"],
     ["--work ${repo}"],
+    ["--replace"],
     length(var.runner_labels) > 0 ? ["--labels ${join(",", var.runner_labels)}"] : [],
     var.runner_group != null ? ["--runnergroup ${github_actions_runner_group.rg[0].id}"] : []
   )) }
