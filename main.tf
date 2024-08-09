@@ -5,7 +5,6 @@ data "github_actions_registration_token" "token" {
 
 data "github_repository" "repository" {
   for_each = toset(var.repos)
-  owner    = var.github_owner
   name     = each.value
 }
 
