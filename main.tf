@@ -17,14 +17,15 @@ resource "github_actions_runner_group" "rg" {
 }
 
 locals {
-  command = join(" ", concat(
-    ["./config.sh --url ${var.github_base_url}/${var.github_owner}/${each.value}"],
-    ["--token ${self.triggers.token}"],
-    ["--name ${each.value}"],
+  command = { for repo in var.repos : repo => join(" ", concat(
+    ["./config.sh --url ${var.github_base_url}/${var.github_owner}/${repo}"],
+    ["--token ${lookup(data.github_actions_registration_token.token, repo)}"],
+    ["--name ${repo}"],
     length(var.runner_labels) > 0 ? ["--labels ${join(",", var.runner_labels)}"] : [],
     var.runner_group != null ? ["--runnergroup ${github_actions_runner_group.rg[0].id}"] : []
-  ))
+  )) }
 }
+
 resource "null_resource" "register_runner" {
   for_each = toset(var.repos)
   triggers = {
@@ -32,6 +33,6 @@ resource "null_resource" "register_runner" {
   }
 
   provisioner "local-exec" {
-    command = "echo ${local.command}"
+    command = lookup(local.command, each.value)
   }
 }
