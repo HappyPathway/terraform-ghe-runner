@@ -32,3 +32,14 @@ variable "removal_tokens" {
   description = "Map of repository to token for removing runners"
   default     = {}
 }
+
+variable "runner_tarball" {
+  type        = string
+  description = "Path to the runner tarball"
+}
+
+variable "runner_basedir" {
+  type        = string
+  description = "Base directory for the runners"
+  default     = "/opt/actions-runner"
+}
