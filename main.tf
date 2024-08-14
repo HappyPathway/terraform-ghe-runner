@@ -35,6 +35,7 @@ resource "local_file" "supervisorctl" {
   content = templatefile("${path.module}/templates/supervisorctl.conf.tpl", {
     command   = lookup(local.command, each.value)
     directory = "${var.runner_basedir}/${each.value}"
+    runner    = each.value
   })
 }
 
