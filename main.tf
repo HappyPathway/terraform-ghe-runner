@@ -32,7 +32,7 @@ resource "local_file" "supervisorctl" {
   for_each = toset(var.repos)
   filename = "${path.root}/supervisor/${each.value}.conf"
   content = templatefile("${path.module}/templates/supervisorctl.conf.tpl", {
-    command   = "cd ${var.runner_basedir}/${each.value} && ./run.sh"
+    command   = "${var.runner_basedir}/${each.value}/run.sh"
     directory = "${var.runner_basedir}/${each.value}"
     runner    = each.value
   })
