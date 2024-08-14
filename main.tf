@@ -54,7 +54,7 @@ resource "null_resource" "register_runner" {
   }
 
   provisioner "local-exec" {
-    command     = lookup(local.command, each.value)
+    command     = "${lookup(local.command, each.value)} || echo 'Runner already exists'"
     working_dir = "${var.runner_basedir}/${each.value}"
   }
 
