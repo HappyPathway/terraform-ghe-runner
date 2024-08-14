@@ -57,7 +57,7 @@ resource "null_resource" "register_runner" {
 
 resource "null_resource" "supervisorctl_reload" {
   triggers = {
-    token = join(",", data.github_actions_registration_token.token[*].token)
+    token = join(",", [for token in data.github_actions_registration_token.token : token.token])
   }
   provisioner "local-exec" {
     command = "supervisorctl reload"
