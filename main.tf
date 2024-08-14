@@ -17,7 +17,7 @@ resource "github_actions_runner_group" "rg" {
 
 locals {
   command = { for repo in var.repos : repo => join(" ", concat(
-    ["${var.runner_basedir}/${each.value}/config.sh --url ${var.github_base_url}/${var.github_owner}/${repo}"],
+    ["${var.runner_basedir}/${repo}/config.sh --url ${var.github_base_url}/${var.github_owner}/${repo}"],
     ["--token ${lookup(data.github_actions_registration_token.token, repo).token}"],
     ["--name ${repo}"],
     ["--unattended"],
