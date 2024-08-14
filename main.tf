@@ -32,7 +32,7 @@ resource "local_file" "supervisorctl" {
   for_each = toset(var.repos)
   filename = "${path.root}/supervisor/${each.value}.conf"
   content = templatefile("${path.module}/templates/supervisorctl.conf.tpl", {
-    command   = lookup(local.command, each.value)
+    command   = "./run.sh"
     directory = "${var.runner_basedir}/${each.value}"
     runner    = each.value
   })
@@ -52,6 +52,12 @@ resource "null_resource" "register_runner" {
     command     = "tar vxzf ${var.runner_tarball} >/dev/null 2>/dev/null"
     working_dir = "${var.runner_basedir}/${each.value}"
   }
+
+  provisioner "local-exec" {
+    command     = lookup(local.command, each.value)
+    working_dir = "${var.runner_basedir}/${each.value}"
+  }
+
   depends_on = [local_file.supervisorctl]
 }
 
