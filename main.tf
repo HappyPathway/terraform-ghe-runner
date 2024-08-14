@@ -8,7 +8,6 @@ data "github_repository" "repository" {
   name     = each.value
 }
 
-
 resource "github_actions_runner_group" "rg" {
   count                   = var.runner_group == null ? 0 : 1
   name                    = var.runner_group
@@ -53,9 +52,18 @@ resource "null_resource" "register_runner" {
     command     = "tar vxzf ${var.runner_tarball} >/dev/null 2>/dev/null"
     working_dir = "${var.runner_basedir}/${each.value}"
   }
+  depends_on = [local_file.supervisorctl]
+}
 
+resource "null_resource" "supervisorctl_reload" {
+  triggers = {
+    token = join(",", data.github_actions_registration_token.token[*].token)
+  }
   provisioner "local-exec" {
     command = "supervisorctl reload"
   }
-  depends_on = [local_file.supervisorctl]
+  depends_on = [
+    local_file.supervisorctl,
+    null_resource.register_runner
+  ]
 }
