@@ -2,7 +2,7 @@
 command=${command}
 ;numprocs=1                    ; number of processes copies to start (def 1)
 directory=${directory}              ; directory to cwd to before exec (def no cwd)
-;autostart=true                ; start at supervisord start (default: true)
+autostart=true                ; start at supervisord start (default: true)
 ;startsecs=1                   ; # of secs prog must stay up to be running (def. 1)
 startretries=3                ; max # of serial start failures when starting (default 3)
 autorestart=true
