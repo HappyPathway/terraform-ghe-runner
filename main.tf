@@ -45,7 +45,7 @@ resource "null_resource" "register_runner" {
   }
 
   provisioner "local-exec" {
-    command = "mkdir -p ${var.runner_basedir}/${each.value} || echo 'Directory already exists'"
+    command = "mkdir -p ${var.runner_basedir}/${each.value}"
   }
 
   provisioner "local-exec" {
