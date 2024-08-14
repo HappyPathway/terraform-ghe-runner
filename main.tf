@@ -29,11 +29,20 @@ locals {
   )) }
 }
 
+resource "local_file" "supervisorctl" {
+  for_each = toset(var.repos)
+  filename = "${path.root}/supervisor/${each.value}.conf"
+  content = templatefile("${path.module}/templates/supervisorctl.conf.tpl", {
+    command   = lookup(local.command, each.value)
+    directory = "${var.runner_basedir}/${each.value}"
+  })
+}
+
 resource "null_resource" "register_runner" {
   for_each = toset(var.repos)
-  #   triggers = {
-  #     token = lookup(data.github_actions_registration_token.token, each.value).token
-  #   }
+  triggers = {
+    token = lookup(data.github_actions_registration_token.token, each.value).token
+  }
 
   provisioner "local-exec" {
     command = "mkdir -p ${var.runner_basedir}/${each.value} || echo 'Directory already exists'"
@@ -45,12 +54,7 @@ resource "null_resource" "register_runner" {
   }
 
   provisioner "local-exec" {
-    command     = "${lookup(local.command, each.value)} >/dev/null 2>/dev/null || echo 'Runner already exists'"
-    working_dir = "${var.runner_basedir}/${each.value}"
+    command = "supervisorctl reload"
   }
-
-  provisioner "local-exec" {
-    command     = "nohup ./run.sh >/dev/null 2>/dev/null &"
-    working_dir = "${var.runner_basedir}/${each.value}"
-  }
+  depends_on = [local_file.supervisorctl]
 }
