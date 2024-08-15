@@ -91,7 +91,7 @@ resource "null_resource" "register_runner" {
   }
 
   provisioner "local-exec" {
-    command     = "${self.config_path} remove || echo 'No runner to remove'"
+    command     = "${self.triggers.config_path} remove || echo 'No runner to remove'"
     working_dir = self.triggers.working_dir
     when        = destroy
   }
