@@ -26,6 +26,7 @@ locals {
     ["--labels ${join(",", concat(var.runner_labels, [repo]))}"],
     var.runner_group != null ? ["--runnergroup ${github_actions_runner_group.rg[0].id}"] : []
   )) }
+  working_dir = { for repo in var.repos : repo => "${var.runner_basedir}/${repo}" }
 }
 
 resource "local_file" "supervisorctl" {
@@ -38,27 +39,59 @@ resource "local_file" "supervisorctl" {
   })
 }
 
-resource "null_resource" "register_runner" {
+resource "null_resource" "install_runner" {
   for_each = toset(var.repos)
   triggers = {
     token = lookup(data.github_actions_registration_token.token, each.value).token
   }
 
   provisioner "local-exec" {
-    command = "mkdir -p ${var.runner_basedir}/${each.value}"
+    command = "mkdir -p ${lookup(local.working_dir, each.value)}"
+  }
+
+  provisioner "local-exec" {
+    command = "rm -rf ${lookup(local.working_dir, each.value)}"
+    when    = destroy
   }
 
   provisioner "local-exec" {
     command     = "tar vxzf ${var.runner_tarball} >/dev/null 2>/dev/null"
-    working_dir = "${var.runner_basedir}/${each.value}"
+    working_dir = lookup(local.working_dir, each.value)
+  }
+
+  depends_on = [
+    local_file.supervisorctl
+  ]
+}
+
+resource "local_file" "env" {
+  content  = file("${path.module}/files/.env")
+  filename = "${var.runner_basedir}/${each.value}/.env"
+}
+
+resource "null_resource" "register_runner" {
+  for_each = toset(var.repos)
+
+  provisioner "local-exec" {
+    command     = "rm .runner || echo 'No runner to remove'"
+    working_dir = lookup(local.working_dir, each.value)
+  }
+
+  provisioner "local-exec" {
+    command     = "${var.runner_basedir}/${repo}/config.sh remove || echo 'No runner to remove'"
+    working_dir = lookup(local.working_dir, each.value)
   }
 
   provisioner "local-exec" {
     command     = "${lookup(local.command, each.value)} || echo 'Runner already exists'"
-    working_dir = "${var.runner_basedir}/${each.value}"
+    working_dir = lookup(local.working_dir, each.value)
   }
 
-  depends_on = [local_file.supervisorctl]
+  depends_on = [
+    local_file.supervisorctl,
+    null_resource.install_runner,
+    local_file.env
+  ]
 }
 
 resource "null_resource" "supervisorctl_reload" {
