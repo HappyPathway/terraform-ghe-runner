@@ -42,7 +42,8 @@ resource "local_file" "supervisorctl" {
 resource "null_resource" "install_runner" {
   for_each = toset(var.repos)
   triggers = {
-    token = lookup(data.github_actions_registration_token.token, each.value).token
+    token       = lookup(data.github_actions_registration_token.token, each.value).token
+    working_dir = lookup(local.working_dir, each.value)
   }
 
   provisioner "local-exec" {
@@ -50,7 +51,7 @@ resource "null_resource" "install_runner" {
   }
 
   provisioner "local-exec" {
-    command = "rm -rf ${lookup(local.working_dir, each.value)}"
+    command = "rm -rf ${self.triggers.working_dir}"
     when    = destroy
   }
 
