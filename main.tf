@@ -76,6 +76,7 @@ resource "null_resource" "register_runner" {
   triggers = {
     token       = lookup(data.github_actions_registration_token.token, each.value).token
     working_dir = lookup(local.working_dir, each.value)
+    config_path = "${var.runner_basedir}/${each.value}/config.sh"
   }
 
   provisioner "local-exec" {
@@ -85,7 +86,7 @@ resource "null_resource" "register_runner" {
   }
 
   provisioner "local-exec" {
-    command     = "${var.runner_basedir}/${repo}/config.sh remove || echo 'No runner to remove'"
+    command     = "${self.config_path} remove || echo 'No runner to remove'"
     working_dir = self.triggers.working_dir
     when        = destroy
   }
