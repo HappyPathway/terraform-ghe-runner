@@ -43,3 +43,9 @@ variable "runner_basedir" {
   description = "Base directory for the runners"
   default     = "/opt/actions-runner"
 }
+
+variable "env_vars" {
+  type        = map(string)
+  description = "Environment variables to set for the runners"
+  default     = {}
+}
