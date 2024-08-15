@@ -66,8 +66,9 @@ resource "null_resource" "install_runner" {
 }
 
 resource "local_file" "env" {
+  for_each = toset(var.repos)
   content  = file("${path.module}/files/.env")
-  filename = "${var.runner_basedir}/${each.value}/.env"
+  filename = "${lookup(local.working_dir, each.value)}/.env"
 }
 
 resource "null_resource" "register_runner" {
