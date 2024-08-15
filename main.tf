@@ -27,6 +27,7 @@ locals {
     var.runner_group != null ? ["--runnergroup ${github_actions_runner_group.rg[0].id}"] : []
   )) }
   working_dir = { for repo in var.repos : repo => "${var.runner_basedir}/${repo}" }
+  config_path = { for repo in var.repos : repo => "${var.runner_basedir}/${repo}/config.sh" }
 }
 
 resource "local_file" "supervisorctl" {
@@ -42,17 +43,10 @@ resource "local_file" "supervisorctl" {
 resource "null_resource" "install_runner" {
   for_each = toset(var.repos)
   triggers = {
-    token       = lookup(data.github_actions_registration_token.token, each.value).token
-    working_dir = lookup(local.working_dir, each.value)
+    repos = join(",", var.repos)
   }
-
   provisioner "local-exec" {
     command = "mkdir -p ${lookup(local.working_dir, each.value)}"
-  }
-
-  provisioner "local-exec" {
-    command = "rm -rf ${self.triggers.working_dir}"
-    when    = destroy
   }
 
   provisioner "local-exec" {
@@ -79,21 +73,16 @@ resource "local_file" "env" {
 resource "null_resource" "register_runner" {
   for_each = toset(var.repos)
   triggers = {
-    token       = lookup(data.github_actions_registration_token.token, each.value).token
-    working_dir = lookup(local.working_dir, each.value)
-    config_path = "${var.runner_basedir}/${each.value}/config.sh"
+    repos = join(",", var.repos)
   }
-
   provisioner "local-exec" {
     command     = "rm .runner || echo 'No runner to remove'"
-    working_dir = self.triggers.working_dir
-    when        = destroy
+    working_dir = lookup(local.working_dir, each.value)
   }
 
   provisioner "local-exec" {
-    command     = "${self.triggers.config_path} remove || echo 'No runner to remove'"
-    working_dir = self.triggers.working_dir
-    when        = destroy
+    command     = "${lookup(local.config_path, each.value)} remove || echo 'No runner to remove'"
+    working_dir = lookup(local.working_dir, each.value)
   }
 
   provisioner "local-exec" {
@@ -110,7 +99,7 @@ resource "null_resource" "register_runner" {
 
 resource "null_resource" "supervisorctl_reload" {
   triggers = {
-    token = join(",", [for token in data.github_actions_registration_token.token : token.token])
+    repos = join(",", var.repos)
   }
   provisioner "local-exec" {
     command = "supervisorctl reload"
