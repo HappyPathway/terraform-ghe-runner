@@ -73,15 +73,21 @@ resource "local_file" "env" {
 
 resource "null_resource" "register_runner" {
   for_each = toset(var.repos)
-
-  provisioner "local-exec" {
-    command     = "rm .runner || echo 'No runner to remove'"
+  triggers = {
+    token       = lookup(data.github_actions_registration_token.token, each.value).token
     working_dir = lookup(local.working_dir, each.value)
   }
 
   provisioner "local-exec" {
+    command     = "rm .runner || echo 'No runner to remove'"
+    working_dir = self.triggers.working_dir
+    when        = destroy
+  }
+
+  provisioner "local-exec" {
     command     = "${var.runner_basedir}/${repo}/config.sh remove || echo 'No runner to remove'"
-    working_dir = lookup(local.working_dir, each.value)
+    working_dir = self.triggers.working_dir
+    when        = destroy
   }
 
   provisioner "local-exec" {
