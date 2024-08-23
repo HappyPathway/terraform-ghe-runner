@@ -44,6 +44,11 @@ variable "runner_basedir" {
   default     = "/opt/actions-runner"
 }
 
+variable autorestart {
+  type = bool
+  default = true
+}
+
 variable "env_vars" {
   type        = map(string)
   description = "Environment variables to set for the runners"
