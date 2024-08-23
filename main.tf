@@ -37,6 +37,7 @@ resource "local_file" "supervisorctl" {
     command   = "${var.runner_basedir}/${each.value}/run.sh"
     directory = "${var.runner_basedir}/${each.value}"
     runner    = each.value
+    autorestart = var.autorestart
   })
 }
 
