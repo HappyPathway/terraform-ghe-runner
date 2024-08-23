@@ -44,8 +44,8 @@ variable "runner_basedir" {
   default     = "/opt/actions-runner"
 }
 
-variable autorestart {
-  type = bool
+variable "autorestart" {
+  type    = bool
   default = true
 }
 
