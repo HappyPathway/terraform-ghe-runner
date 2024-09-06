@@ -1,2 +1,2 @@
 # terraform-ghe-runner
-Terraform Workspace
+Terraform Module
