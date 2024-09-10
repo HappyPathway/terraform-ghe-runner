@@ -44,7 +44,7 @@ resource "local_file" "supervisorctl" {
 resource "null_resource" "install_runner" {
   for_each = toset(var.repos)
   triggers = {
-    repos = join(",", var.repos)
+    repo = each.value
   }
   provisioner "local-exec" {
     command = "mkdir -p ${lookup(local.working_dir, each.value)}"
@@ -74,7 +74,7 @@ resource "local_file" "env" {
 resource "null_resource" "register_runner" {
   for_each = toset(var.repos)
   triggers = {
-    repos = join(",", var.repos)
+    repo = each.value
   }
   provisioner "local-exec" {
     command     = "rm .runner || echo 'No runner to remove'"
