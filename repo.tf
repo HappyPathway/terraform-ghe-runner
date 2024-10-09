@@ -8,15 +8,8 @@ data "github_repository" "repository" {
   name     = each.value
 }
 
-resource "github_actions_runner_group" "rg" {
-  count                   = var.runner_group == null ? 0 : 1
-  name                    = var.runner_group
-  visibility              = "selected"
-  selected_repository_ids = [data.github_repository.repository[*].repo_id]
-}
-
 locals {
-  command = { for repo in var.repos : repo => join(" ", concat(
+  repo_command = { for repo in var.repos : repo => join(" ", concat(
     ["${var.runner_basedir}/${repo}/config.sh --url ${var.github_base_url}/${var.github_owner}/${repo}"],
     ["--token ${lookup(data.github_actions_registration_token.token, repo).token}"],
     ["--name ${repo}"],
@@ -87,7 +80,7 @@ resource "null_resource" "register_runner" {
   }
 
   provisioner "local-exec" {
-    command     = "${lookup(local.command, each.value)} || echo 'Runner already exists'"
+    command     = "${lookup(local.repo_command, each.value)} || echo 'Runner already exists'"
     working_dir = lookup(local.working_dir, each.value)
   }
 
@@ -99,6 +92,7 @@ resource "null_resource" "register_runner" {
 }
 
 resource "null_resource" "supervisorctl_reload" {
+  count = length(var.repos) > 0 ? 1 : 0
   triggers = {
     repos = join(",", var.repos)
   }
