@@ -60,12 +60,12 @@ resource "null_resource" "register_org_runner" {
   count = local.has_repos ? 0 : 1
   provisioner "local-exec" {
     command     = "rm .runner || echo 'No runner to remove'"
-    working_dir = lookup(local.working_dir, each.value)
+    working_dir = local.org_working_dir
   }
 
   provisioner "local-exec" {
     command     = "${local.org_config_path} remove || echo 'No runner to remove'"
-    working_dir = lookup(local.working_dir, each.value)
+    working_dir = local.org_working_dir
   }
 
   provisioner "local-exec" {
