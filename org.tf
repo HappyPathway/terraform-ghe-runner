@@ -3,7 +3,7 @@ data "github_actions_organization_registration_token" "token" {
 }
 
 locals {
-  org_command = concat(
+  org_command = join(" ", concat(
     ["${var.runner_basedir}/${var.github_owner}/config.sh --url ${var.github_base_url}/${var.github_owner}"],
     ["--token ${data.github_actions_organization_registration_token.token[0].token}"],
     ["--name ${var.github_owner}"],
@@ -12,7 +12,7 @@ locals {
     ["--replace"],
     ["--labels ${join(",", concat(var.runner_labels, [var.github_owner]))}"],
     var.runner_group != null ? ["--runnergroup ${github_actions_runner_group.rg[0].id}"] : []
-  )
+  ))
   org_working_dir = "${var.runner_basedir}/${var.github_owner}"
   org_config_path = "${var.runner_basedir}/${var.github_owner}/config.sh"
 }
