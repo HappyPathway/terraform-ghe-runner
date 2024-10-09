@@ -4,7 +4,7 @@ data "github_actions_organization_registration_token" "token" {
 
 locals {
   org_command = concat(
-    ["${var.runner_basedir}/${repo}/config.sh --url ${var.github_base_url}/${var.github_owner}"],
+    ["${var.runner_basedir}/${var.github_owner}/config.sh --url ${var.github_base_url}/${var.github_owner}"],
     ["--token ${data.github_actions_organization_registration_token.token[0].token}"],
     ["--name ${var.github_owner}"],
     ["--unattended"],
