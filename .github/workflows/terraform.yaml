@@ -10,7 +10,6 @@ on:
 jobs:
   gtag:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: terraform
     uses: HappyPathway/centralized-actions/.github/workflows/gtag.yml@main
     with:
       patch: true
