@@ -1,4 +1,4 @@
-[program:${runner}]
+[program:${lower(runner)}]
 directory=${directory}              ; directory to cwd to before exec (def no cwd)
 command=${command}
 ;numprocs=1                    ; number of processes copies to start (def 1)
